@@ -3,6 +3,7 @@ author	T. Nakagawa
 changelog	2021-04 Project finished.\/2021-11-20 Page created.\/2025-01-31 Support for GitHub README.md added.\/
 home	https://github.com/middle-river
 thumbnail_height	200
+paragraph_newline	 
 \!}
 
 \[lang_en\][English] \[[日本語]\:#lang_ja\]
@@ -12,29 +13,30 @@ thumbnail_height	200
 \2	Introduction
 
 I have used HTML editors such as KompoZer and BlueGriffon to create my website.
- They were useful tools which allow to edit in WYSIWYG or directly edit HTML, but they were not very convenient because they sometimes insert unnecessary tags or spaces, and output files with invalid HTML syntax.
- I usually use bare text editors and am used to TeX, so it was not efficient for me to use WYSIWYG editors or write HTML directly.
- Therefore, I decided to create web pages by generating HTML from files written in a simple a markup language.
+They were useful tools which allow to edit in WYSIWYG or directly edit HTML, but they were not very convenient because they sometimes insert unnecessary tags or spaces, and output files with invalid HTML syntax.
+I usually use bare text editors and am used to TeX, so it was not efficient for me to use WYSIWYG editors or write HTML directly.
+Therefore, I decided to create web pages by generating HTML from files written in a simple a markup language.
 
 There are various markup languages for writing documents, and one of the major ones is Markdown.
- Markdown has the advantage of being relatively easy to read when viewed as a text file, but the grammar is not defined as a context-free grammar as in programming languages.
- It is sometimes difficult to predict the outputs for complicated nested structures and character escaping.
- I looked into other existing lightweight markup languages but found nothing suitable for my purposes, so I made my own markup language and created a converter to HTML.
- The markup language was designed by ignoring the look of source text as a text file but focusing on the simplicity of the syntax.
+Markdown has the advantage of being relatively easy to read when viewed as a text file, but the grammar is not defined as a context-free grammar as in programming languages.
+It is sometimes difficult to predict the outputs for complicated nested structures and character escaping.
+I looked into other existing lightweight markup languages but found nothing suitable for my purposes, so I made my own markup language and created a converter to HTML.
+The markup language was designed by ignoring the look of source text as a text file but focusing on the simplicity of the syntax.
 
 \2	Syntax and Examples
 
 \3	Summary
 
 All markup tags are represented by the symbol \\ and a single character, like \\x.
- There are two types of markup tags: inline elements and block elements.
- Inline elements can be used anywhere in a document.
- Block elements can be written on a single line by placing a tab character immediately after \\x, or on multiple lines by using start and end tags with braces like \\x{ ... \\x}.
- When writing block elements on multiple lines, multiple inner elements can be written on each line by separating a tab character.
- There are two types of block elements: normal block elements and meta block elements.
- Normal blocks have marked-up documents inside them, while meta blocks have raw HTML documents and HTML tags are not escaped.
- A paragraph consists of consecutive lines and ends with a blank line.
- Consecutive lines are concatenated by deleting line breaks when HTML is generated, so in Japanese there are no unnecessary whitespaces generated, but in English spaces must be put explicitly at the beginning or end of sentences.
+There are two types of markup tags: inline elements and block elements.
+Inline elements can be used anywhere in a document.
+Block elements can be written on a single line by placing a tab character immediately after \\x, or on multiple lines by using start and end tags with braces like \\x{ ... \\x}.
+When writing block elements on multiple lines, multiple inner elements can be written on each line by separating a tab character.
+There are two types of block elements: normal block elements and meta block elements.
+Normal blocks have marked-up documents inside them, while meta blocks have raw HTML documents and HTML tags are not escaped.
+
+A paragraph consists of consecutive lines and ends with a blank line.
+Consecutive lines are concatenated by replacing newlines with the variable named paragraph_newline. Its default value is a space, which will work for English. An empty string can be set to the variable for Japanese in order not to generate unnecessary whitespaces.
 
 \3	Tag List
 
@@ -75,6 +77,7 @@ author	Author name
 changelog	Edit history of the page
 home	URL of homepage
 thumbnail_height	Height of image thumbnails
+paragraph_newline	String to replace newlines in paragraphs
 \|}
 
 \3	Syntax in BNF
@@ -148,7 +151,7 @@ a test
 \<\\-, \\+\> (Unordered List and Ordered List)
 \&{
 An unordered list or ordered list are generated.
- This block has multiple elements separated by tab characters or newlines.\/\/
+This block has multiple elements separated by tab characters or newlines.\/\/
 \(Input\)
 \"{
 \-	a	b
@@ -177,8 +180,8 @@ BB	CC
 \<\\*\> (Description List)
 \&{
 A description list is generated.
- This block has elements separated by tab characters or newlines, and the number of elements must be a multiple of two.
- The headings and contents of each item in the list alternate.\/\/
+This block has elements separated by tab characters or newlines, and the number of elements must be a multiple of two.
+The headings and contents of each item in the list alternate.\/\/
 \(Input\)
 \"{
 \*{
@@ -201,8 +204,8 @@ cc	d	dd
 \<\\|\> (Table)
 \&{
 A table is generated.
- This block has elements separated by tab characters or newlines, and the number of elements must be equal to (1 + number_of_rows * number_of_columns).
- The first element is a string with the same length as the number of columns, and consists of the characters l, c and r which specifies the format of each column in the table (left-aligned, centered, or right-aligned, respectively).\/\/
+This block has elements separated by tab characters or newlines, and the number of elements must be equal to (1 + number_of_rows * number_of_columns).
+The first element is a string with the same length as the number of columns, and consists of the characters l, c and r which specifies the format of each column in the table (left-aligned, centered, or right-aligned, respectively).\/\/
 \(Input\)
 \"{
 \|{
@@ -227,7 +230,7 @@ f
 \<\\&\> (Block Grouping)
 \&{
 Combines multiple blocks into one block.
- This is used when multiple blocks need to be included in a list or table.\/\/
+This is used when multiple blocks need to be included in a list or table.\/\/
 \(Input\)
 \"{
 \-{
@@ -260,8 +263,8 @@ Combines multiple blocks into one block.
 \<\\!\> (Defining Variables)
 \&{
 Variable are defined.
- This block has multiple elements separated by tab characters or newlines, and the number of elements must be a multiple of 2.
- Variable names and variable values alternate.\/\/
+This block has multiple elements separated by tab characters or newlines, and the number of elements must be a multiple of 2.
+Variable names and variable values alternate.\/\/
 \(Input\)
 \"{
 \!{
@@ -280,9 +283,9 @@ x=\{x\}
 \<\\^\> (Image)
 \&{
 Images are generated.
- This block has one or more elements separated by tab characters or newlines.
- If there is just one element, the image is centered and displayed.
- If the number of elements is a multiple of three, each of them respectively means a link destination, a thumbnail image, and a caption, and images with links and labels are displayed in a row.
+This block has one or more elements separated by tab characters or newlines.
+If there is just one element, the image is centered and displayed.
+If the number of elements is a multiple of three, each of them respectively means a link destination, a thumbnail image, and a caption, and images with links and labels are displayed in a row.
 \/\/
 \(Input\)
 \"{
@@ -326,26 +329,28 @@ Raw HTML can be written.
 \2	Converter to HTML
 
 I wrote a converter in Python based on recursive descent parsing for generating HTML files from this web markup language.
- The script is available \[here\:https://github.com/middle-river/wml2html\].
+The script is available \[here\:https://github.com/middle-river/wml2html\].
 
 \2	Example
 
 I have used this markup language to create my web pages for about seven months, and it has saved my time by allowing easier writing of web pages using a text editor.
- The conversion script always outputs valid HTML files, and I no longer suffer from pages with invalid HTML syntax.
- As an example, \[here\:README.wml\] is the markup file used for generating this page.
- This markup language has only minimum functions I need, but I will use raw HTML or add new features if I come to think they are necessary.
+The conversion script always outputs valid HTML files, and I no longer suffer from pages with invalid HTML syntax.
+As an example, \[here\:README.wml\] is the markup file used for generating this page.
+This markup language has only minimum functions I need, but I will use raw HTML or add new features if I come to think they are necessary.
 
 \2	Generating README.md for GitHub
 
-(Added on 2025/01) 
+(Added on 2025/01)
 I decided to migrate some of the contents from the current web hosting service to GitHub.
- For the migration, the conversion script was modified to generate README.md for GitHub.
- README.md for GitHub is usually written in Markdown, but Markdown is inconvenient because it does not have a strict syntax, so I decided to generate limited HTML that can be used in README.md for GitHub.
- The HTML that can be used in GitHub is described in \[GitHub Flavored Markdown Spec\:https://github.github.com/gfm/\].
- For example, the \(align\) attribute is used since the \(style\) attribute is unavailable, colons (:) are replaced with the numeric character reference (&#58) to avoid linkification for URLs starting with http://, a blank line is inserted before the <pre> tag to prevent the HTML block from being interrupted.
- However, there are limitations such that the <figcaption> tag is not supported so image captions are not displayed properly.
+For the migration, the conversion script was modified to generate README.md for GitHub.
+README.md for GitHub is usually written in Markdown, but Markdown is inconvenient because it does not have a strict syntax, so I decided to generate limited HTML that can be used in README.md for GitHub.
+The HTML that can be used in GitHub is described in \[GitHub Flavored Markdown Spec\:https://github.github.com/gfm/\].
+For example, the \(align\) attribute is used since the \(style\) attribute is unavailable, colons (:) are replaced with the numeric character reference (&#58) to avoid linkification for URLs starting with http://, a blank line is inserted before the <pre> tag to prevent the HTML block from being interrupted.
+However, there are limitations such that the <figcaption> tag is not supported so image captions are not displayed properly.
 
 \=
+
+\!	paragraph_newline	
 
 \[[English]\:#lang_en\] \[lang_ja\][日本語]
 
@@ -378,7 +383,8 @@ Markdownはテキストファイルとして見た場合に比較的可読性が
 通常ブロックはその内部にマークアップされた文書を持ちますが、メタブロックは生のHTML文書を持ちHTMLタグなどはエスケープされません。
 
 パラグラフは、連続する行で構成されて空行で終了します。
-連続した行の改行は削除して連結されるため、日本語の場合は複数行があっても不要な空白が入ることはありませんが、英語の場合は文頭や文末に明示的にスペースを入れる必要があります。
+連続した行の改行はparagraph_newlineという変数に定義された文字列で置き換えられますが、その値はデフォルトではスペースです。
+そのため日本語の場合はこの変数を空文字にすることで、段落中の改行により不要な空白が入らないようにできます。
 
 \3	タグ一覧
 
@@ -419,6 +425,7 @@ author	著者名
 changelog	編集履歴
 home	ホームページのURL
 thumbnail_height	画像サムネイルの高さ
+paragraph_newline	パラグラフ中の改行を置き換える文字列
 \|}
 
 \3	BNFによる文法の定義

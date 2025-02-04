@@ -9,7 +9,8 @@
 <p>There are various markup languages for writing documents, and one of the major ones is Markdown. Markdown has the advantage of being relatively easy to read when viewed as a text file, but the grammar is not defined as a context-free grammar as in programming languages. It is sometimes difficult to predict the outputs for complicated nested structures and character escaping. I looked into other existing lightweight markup languages but found nothing suitable for my purposes, so I made my own markup language and created a converter to HTML. The markup language was designed by ignoring the look of source text as a text file but focusing on the simplicity of the syntax.</p>
 <h2>Syntax and Examples</h2>
 <h3>Summary</h3>
-<p>All markup tags are represented by the symbol \ and a single character, like \x. There are two types of markup tags&#58; inline elements and block elements. Inline elements can be used anywhere in a document. Block elements can be written on a single line by placing a tab character immediately after \x, or on multiple lines by using start and end tags with braces like \x{ ... \x}. When writing block elements on multiple lines, multiple inner elements can be written on each line by separating a tab character. There are two types of block elements&#58; normal block elements and meta block elements. Normal blocks have marked-up documents inside them, while meta blocks have raw HTML documents and HTML tags are not escaped. A paragraph consists of consecutive lines and ends with a blank line. Consecutive lines are concatenated by deleting line breaks when HTML is generated, so in Japanese there are no unnecessary whitespaces generated, but in English spaces must be put explicitly at the beginning or end of sentences.</p>
+<p>All markup tags are represented by the symbol \ and a single character, like \x. There are two types of markup tags&#58; inline elements and block elements. Inline elements can be used anywhere in a document. Block elements can be written on a single line by placing a tab character immediately after \x, or on multiple lines by using start and end tags with braces like \x{ ... \x}. When writing block elements on multiple lines, multiple inner elements can be written on each line by separating a tab character. There are two types of block elements&#58; normal block elements and meta block elements. Normal blocks have marked-up documents inside them, while meta blocks have raw HTML documents and HTML tags are not escaped.</p>
+<p>A paragraph consists of consecutive lines and ends with a blank line. Consecutive lines are concatenated by replacing newlines with the variable named paragraph_newline. Its default value is a space, which will work for English. An empty string can be set to the variable for Japanese in order not to generate unnecessary whitespaces.</p>
 <h3>Tag List</h3>
 <table align="center" border="1">
 <tr>
@@ -102,7 +103,7 @@
 </tr>
 </table>
 <h3>Internal Variables</h3>
-<p>This markup language allows to define variables and refer their values.The following variables are used in the script when outputting HTML.</p>
+<p>This markup language allows to define variables and refer their values. The following variables are used in the script when outputting HTML.</p>
 <table align="center" border="1">
 <tr>
 <td align="center">author</td>
@@ -119,6 +120,10 @@
 <tr>
 <td align="center">thumbnail_height</td>
 <td align="left">Height of image thumbnails</td>
+</tr>
+<tr>
+<td align="center">paragraph_newline</td>
+<td align="left">String to replace newlines in paragraphs</td>
 </tr>
 </table>
 <h3>Syntax in BNF</h3>
@@ -191,7 +196,7 @@ a test
 <dt><strong>\-, \+</strong> (Unordered List and Ordered List)</dt>
 <dd><div>
 An unordered list or ordered list are generated.
- This block has multiple elements separated by tab characters or newlines.<br><br>
+This block has multiple elements separated by tab characters or newlines.<br><br>
 <em>Input</em>
 
 <pre style="background-color: #ccffcc">
@@ -225,8 +230,8 @@ BB	CC
 <dt><strong>\*</strong> (Description List)</dt>
 <dd><div>
 A description list is generated.
- This block has elements separated by tab characters or newlines, and the number of elements must be a multiple of two.
- The headings and contents of each item in the list alternate.<br><br>
+This block has elements separated by tab characters or newlines, and the number of elements must be a multiple of two.
+The headings and contents of each item in the list alternate.<br><br>
 <em>Input</em>
 
 <pre style="background-color: #ccffcc">
@@ -254,8 +259,8 @@ cc	d	dd
 <dt><strong>\|</strong> (Table)</dt>
 <dd><div>
 A table is generated.
- This block has elements separated by tab characters or newlines, and the number of elements must be equal to (1 + number_of_rows * number_of_columns).
- The first element is a string with the same length as the number of columns, and consists of the characters l, c and r which specifies the format of each column in the table (left-aligned, centered, or right-aligned, respectively).<br><br>
+This block has elements separated by tab characters or newlines, and the number of elements must be equal to (1 + number_of_rows * number_of_columns).
+The first element is a string with the same length as the number of columns, and consists of the characters l, c and r which specifies the format of each column in the table (left-aligned, centered, or right-aligned, respectively).<br><br>
 <em>Input</em>
 
 <pre style="background-color: #ccffcc">
@@ -286,7 +291,7 @@ f
 <dt><strong>\&amp;</strong> (Block Grouping)</dt>
 <dd><div>
 Combines multiple blocks into one block.
- This is used when multiple blocks need to be included in a list or table.<br><br>
+This is used when multiple blocks need to be included in a list or table.<br><br>
 <em>Input</em>
 
 <pre style="background-color: #ccffcc">
@@ -336,8 +341,8 @@ Combines multiple blocks into one block.
 <dt><strong>\!</strong> (Defining Variables)</dt>
 <dd><div>
 Variable are defined.
- This block has multiple elements separated by tab characters or newlines, and the number of elements must be a multiple of 2.
- Variable names and variable values alternate.<br><br>
+This block has multiple elements separated by tab characters or newlines, and the number of elements must be a multiple of 2.
+Variable names and variable values alternate.<br><br>
 <em>Input</em>
 
 <pre style="background-color: #ccffcc">
@@ -355,9 +360,9 @@ x=123
 <dt><strong>\^</strong> (Image)</dt>
 <dd><div>
 Images are generated.
- This block has one or more elements separated by tab characters or newlines.
- If there is just one element, the image is centered and displayed.
- If the number of elements is a multiple of three, each of them respectively means a link destination, a thumbnail image, and a caption, and images with links and labels are displayed in a row.
+This block has one or more elements separated by tab characters or newlines.
+If there is just one element, the image is centered and displayed.
+If the number of elements is a multiple of three, each of them respectively means a link destination, a thumbnail image, and a caption, and images with links and labels are displayed in a row.
 <br><br>
 <em>Input</em>
 
@@ -407,6 +412,7 @@ Raw HTML can be written.
 <h2>Generating README.md for GitHub</h2>
 <p>(Added on 2025/01) I decided to migrate some of the contents from the current web hosting service to GitHub. For the migration, the conversion script was modified to generate README.md for GitHub. README.md for GitHub is usually written in Markdown, but Markdown is inconvenient because it does not have a strict syntax, so I decided to generate limited HTML that can be used in README.md for GitHub. The HTML that can be used in GitHub is described in <a href="https&#58;//github.github.com/gfm/">GitHub Flavored Markdown Spec</a>. For example, the <em>align</em> attribute is used since the <em>style</em> attribute is unavailable, colons (&#58;) are replaced with the numeric character reference (&amp;#58) to avoid linkification for URLs starting with http&#58;//, a blank line is inserted before the &lt;pre&gt; tag to prevent the HTML block from being interrupted. However, there are limitations such that the &lt;figcaption&gt; tag is not supported so image captions are not displayed properly.</p>
 <hr>
+<!-- var -->
 <p><a href="#lang_en">[English]</a> <a id="lang_ja" name="lang_ja"></a>[日本語]</p>
 <h1 align="center">自作のWebページ用マークアップ言語</h1>
 <h2>はじめに</h2>
@@ -415,7 +421,7 @@ Raw HTML can be written.
 <h2>文法と例</h2>
 <h3>概要</h3>
 <p>すべてのマークアップ用タグは\xのように\記号と1つの文字で表現されます。マークアップ用のタグにはインライン要素とブロック要素があります。インライン要素は文書中のどの位置でも使えます。ブロック要素は\x{...\x}のように波括弧を付けた開始タグと終了タグで範囲を囲んで複数行に書く方法と、\xの直後にタブ文字を置いて1行に書く方法とがあります。テーブルなどのブロックの要素を複数行に書く場合でも、タブで区切ることで1行の中に複数の要素を記述できます。ブロック要素には通常ブロック要素とメタブロック要素があります。通常ブロックはその内部にマークアップされた文書を持ちますが、メタブロックは生のHTML文書を持ちHTMLタグなどはエスケープされません。</p>
-<p>パラグラフは、連続する行で構成されて空行で終了します。連続した行の改行は削除して連結されるため、日本語の場合は複数行があっても不要な空白が入ることはありませんが、英語の場合は文頭や文末に明示的にスペースを入れる必要があります。</p>
+<p>パラグラフは、連続する行で構成されて空行で終了します。連続した行の改行はparagraph_newlineという変数に定義された文字列で置き換えられますが、その値はデフォルトではスペースです。そのため日本語の場合はこの変数を空文字にすることで、段落中の改行により不要な空白が入らないようにできます。</p>
 <h3>タグ一覧</h3>
 <table align="center" border="1">
 <tr>
@@ -525,6 +531,10 @@ Raw HTML can be written.
 <tr>
 <td align="center">thumbnail_height</td>
 <td align="left">画像サムネイルの高さ</td>
+</tr>
+<tr>
+<td align="center">paragraph_newline</td>
+<td align="left">パラグラフ中の改行を置き換える文字列</td>
 </tr>
 </table>
 <h3>BNFによる文法の定義</h3>

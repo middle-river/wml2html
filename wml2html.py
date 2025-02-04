@@ -7,6 +7,10 @@ BLOCK1_TAG = set('=12345-+*|&!^')
 BLOCK2_TAG = set('"@')
 INLINE_TAG = {'\\': '\\', '/': '<br>', '(': '<em>', ')': '</em>', '<': '<strong>', '>': '</strong>'}
 
+DEFAULT_VARIABLES = {
+  'paragraph_newline': ' ',
+}
+
 TEMPLATE = """\
 <!DOCTYPE html>
 <html>
@@ -82,7 +86,7 @@ def parse_paragraph(lines, variables):
     if not line:
       break
     paragraph.append(parse_inline(line, variables, ln))
-  return '<p>%s</p>' % ''.join(paragraph)
+  return '<p>%s</p>' % variables['paragraph_newline'].join(paragraph)
 
 def process_block(tag, exprs, variables, ln, global_element):
   if tag == '"':
@@ -209,6 +213,7 @@ def main():
   lines = [(line.rstrip('\r\n'), ln + 1) for ln, line in enumerate(sys.stdin.readlines())]
 
   variables = collections.defaultdict(str)
+  variables.update(DEFAULT_VARIABLES)
   document = []
   while lines:
     if not lines[0][0]:
